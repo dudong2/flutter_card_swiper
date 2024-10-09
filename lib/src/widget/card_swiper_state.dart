@@ -95,21 +95,54 @@ class _CardSwiperState<T extends Widget> extends State<CardSwiper>
     );
   }
 
+  Widget _buildGradientOverlay(BoxConstraints constraints) {
+    final percentX = (100 * _cardAnimation.left / widget.threshold).ceil();
+    final percentY = (100 * _cardAnimation.top / widget.threshold).ceil();
+    final progress = (percentX.abs() / 100).clamp(0.0, 1.0);
+
+    return Stack(
+      children: [
+        // 원래 카드
+        _buildNormalCard(constraints),
+        // 오버레이 위젯 (그라데이션 포함)
+        if (widget.overlayBuilder != null)
+          Opacity(
+            opacity: progress,
+            child: widget.overlayBuilder!(
+              context,
+              _currentIndex!,
+              percentX,
+              percentY,
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildNormalCard(BoxConstraints constraints) {
+    return ConstrainedBox(
+      constraints: constraints,
+      child: widget.cardBuilder(
+        context,
+        _currentIndex!,
+        (100 * _cardAnimation.left / widget.threshold).ceil(),
+        (100 * _cardAnimation.top / widget.threshold).ceil(),
+      ),
+    );
+  }
+
   Widget _frontItem(BoxConstraints constraints) {
     return Positioned(
       left: _cardAnimation.left,
       top: _cardAnimation.top,
       child: GestureDetector(
         child: Transform.rotate(
-          angle: _cardAnimation.angle,
+          angle: _cardAnimation.left.sign * _cardAnimation.angle.abs(),
           child: ConstrainedBox(
             constraints: constraints,
-            child: widget.cardBuilder(
-              context,
-              _currentIndex!,
-              (100 * _cardAnimation.left / widget.threshold).ceil(),
-              (100 * _cardAnimation.top / widget.threshold).ceil(),
-            ),
+            child: widget.enableGradientOverlay
+                ? _buildGradientOverlay(constraints)
+                : _buildNormalCard(constraints),
           ),
         ),
         onTap: () async {
@@ -217,7 +250,7 @@ class _CardSwiperState<T extends Widget> extends State<CardSwiper>
 
   void _onEndAnimation() {
     final direction = _getEndAnimationDirection();
-    final isValidDirection = _isValidDirection(direction);
+    final isValidDirection = _isValidOnEndDirection(direction);
 
     if (isValidDirection) {
       _swipe(direction);
@@ -246,6 +279,16 @@ class _CardSwiperState<T extends Widget> extends State<CardSwiper>
       CardSwiperDirection.right => widget.allowedSwipeDirection.right,
       CardSwiperDirection.top => widget.allowedSwipeDirection.up,
       CardSwiperDirection.bottom => widget.allowedSwipeDirection.down,
+      _ => false
+    };
+  }
+
+  bool _isValidOnEndDirection(CardSwiperDirection direction) {
+    return switch (direction) {
+      CardSwiperDirection.left => widget.allowedOnEndDirection.left,
+      CardSwiperDirection.right => widget.allowedOnEndDirection.right,
+      CardSwiperDirection.top => widget.allowedOnEndDirection.up,
+      CardSwiperDirection.bottom => widget.allowedOnEndDirection.down,
       _ => false
     };
   }
