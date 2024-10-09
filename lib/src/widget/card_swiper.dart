@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:math' as math;
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/src/card_animation.dart';
 import 'package:flutter_card_swiper/src/controller/card_swiper_controller.dart';
 import 'package:flutter_card_swiper/src/controller/controller_event.dart';
@@ -125,6 +125,10 @@ class CardSwiper extends StatefulWidget {
   /// Must be a positive value. Defaults to Offset(0, 40).
   final Offset backCardOffset;
 
+  final bool enableGradientOverlay;
+  final Widget Function(BuildContext, int, int, int)? overlayBuilder;
+  final AllowedSwipeDirection allowedOnEndDirection;
+
   const CardSwiper({
     required this.cardBuilder,
     required this.cardsCount,
@@ -145,6 +149,9 @@ class CardSwiper extends StatefulWidget {
     this.numberOfCardsDisplayed = 2,
     this.onUndo,
     this.backCardOffset = const Offset(0, 40),
+    this.enableGradientOverlay = false,
+    this.overlayBuilder,
+    this.allowedOnEndDirection = const AllowedSwipeDirection.all(),
     super.key,
   })  : assert(
           maxAngle >= 0 && maxAngle <= 360,
