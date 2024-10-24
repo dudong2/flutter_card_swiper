@@ -117,14 +117,14 @@ class _CardSwiperState<T extends Widget> extends State<CardSwiper>
             await widget.onTapDisabled?.call();
           }
         },
-        onPanStart: (tapInfo) {
-          if (!widget.isDisabled) {
-            final renderBox = context.findRenderObject()! as RenderBox;
-            final position = renderBox.globalToLocal(tapInfo.globalPosition);
+        // onPanStart: (tapInfo) {
+        //   if (!widget.isDisabled) {
+        //     final renderBox = context.findRenderObject()! as RenderBox;
+        //     final position = renderBox.globalToLocal(tapInfo.globalPosition);
 
-            if (position.dy < renderBox.size.height / 2) _tappedOnTop = true;
-          }
-        },
+        //     if (position.dy < renderBox.size.height / 2) _tappedOnTop = true;
+        //   }
+        // },
         onPanUpdate: (tapInfo) {
           if (!widget.isDisabled) {
             setState(
